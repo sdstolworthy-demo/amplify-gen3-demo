@@ -10,3 +10,4 @@ A small Next.js app built to make Amplify Gen 3 features visible on a screen:
   the built artifact with `aws amplifygen3 deploy --prebuilt`.
 
 Deployed with `aws amplifygen3 create` / `deploy`. No secrets live in this repository.
+
