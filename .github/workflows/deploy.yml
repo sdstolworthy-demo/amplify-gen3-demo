@@ -37,7 +37,11 @@ jobs:
           cache: npm
 
       - name: Install the Amplify Gen 3 CLI (preview registry)
+        # The setup script routes only the @omega and @aws-amplifygen3 scopes
+        # to the preview registry; everything else must still resolve from
+        # public npm, so that is pinned explicitly.
         run: |
+          npm config set registry https://registry.npmjs.org/
           curl -fsSL https://omega-preview-registry.amplify.aws.dev/setup -o /tmp/omega-setup.sh
           bash /tmp/omega-setup.sh
           npm install -g --allow-scripts=@omega/cli @omega/cli@latest
