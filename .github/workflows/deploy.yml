@@ -49,6 +49,12 @@ jobs:
 
       - run: npm ci
 
+      - name: Record the commit for the page footer
+        # The adapter runs `next build` with its own environment, so the commit
+        # is written to a file the page reads instead of relying on GITHUB_SHA
+        # reaching the build.
+        run: printf '{"sha":"%s","branch":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REF_NAME" > build-info.json
+
       - name: Build
         run: npx @aws-amplifygen3/adapter-nextjs
 

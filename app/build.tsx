@@ -16,8 +16,17 @@ export interface Build {
 
 export const build: Build = JSON.parse(readFileSync(join(process.cwd(), "version.json"), "utf8"));
 
-const sha = (process.env.GITHUB_SHA ?? process.env.AMPLIFY_COMMIT_ID ?? "local").slice(0, 7);
-const branch = process.env.GITHUB_REF_NAME ?? process.env.AMPLIFY_BRANCH ?? "";
+// CI writes build-info.json before the build; a local or console build has none.
+function buildInfo(): { sha?: string; branch?: string } {
+  try {
+    return JSON.parse(readFileSync(join(process.cwd(), "build-info.json"), "utf8"));
+  } catch {
+    return {};
+  }
+}
+const info = buildInfo();
+const sha = (info.sha ?? process.env.GITHUB_SHA ?? process.env.AMPLIFY_COMMIT_ID ?? "local").slice(0, 7);
+const branch = info.branch ?? process.env.GITHUB_REF_NAME ?? process.env.AMPLIFY_BRANCH ?? "";
 const builtAt = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
 
 export function Footer() {

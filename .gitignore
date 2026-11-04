@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Amplify Gen 3 build output
 .amplify
+build-info.json
