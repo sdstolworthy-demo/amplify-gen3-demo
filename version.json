@@ -1,6 +1,6 @@
 {
   "app": "amplify-gen3-demo",
-  "version": "v1",
+  "version": "v1-green",
   "headline": "Hello, re:Invent.",
-  "theme": { "background": "#0b0e14", "foreground": "#ffffff" }
+  "theme": { "background": "#15803d", "foreground": "#ffffff" }
 }
