@@ -1,26 +1,23 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 /**
- * Incremental static regeneration, made visible. The whole page body comes
- * from one cached function tagged `clock`, so the time it shows is the time
- * the cache entry was built, not the time of the request. It stays put across
- * reloads until `aws amplifygen3 cache revalidate --tag clock` or the hourly
- * revalidate window, and no redeploy is involved either way.
+ * Incremental static regeneration, made visible. The page body is one cached
+ * function tagged `clock`, so the time it shows is the time the cache entry
+ * was built, not the time of the request. It stays put across reloads until
+ * `aws amplifygen3 cache revalidate --tag clock` or the hourly window, and no
+ * redeploy is involved either way.
  */
-export const revalidate = 3600;
-
-const generated = unstable_cache(
-  async () => {
-    const now = new Date();
-    return {
-      clock: now.toISOString().slice(11, 19) + " UTC",
-      date: now.toISOString().slice(0, 10),
-      serial: Math.floor(now.getTime() / 1000) % 100000,
-    };
-  },
-  ["clock"],
-  { tags: ["clock"], revalidate: 3600 },
-);
+async function generated() {
+  "use cache";
+  cacheTag("clock");
+  cacheLife("hours");
+  const now = new Date();
+  return {
+    clock: now.toISOString().slice(11, 19) + " UTC",
+    date: now.toISOString().slice(0, 10),
+    serial: Math.floor(now.getTime() / 1000) % 100000,
+  };
+}
 
 export default async function Isr() {
   const page = await generated();
