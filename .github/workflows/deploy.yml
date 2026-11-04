@@ -1,0 +1,52 @@
+# Build in CI, then ship the exact artifact to Amplify Gen 3 production.
+#
+# No long-lived AWS keys anywhere: the job presents a GitHub OIDC token and
+# assumes a role whose trust policy names this repository. The Amplify CLI is
+# installed from the preview registry with those same credentials; at GA it
+# ships inside the AWS CLI and the two install steps go away.
+name: deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install the Amplify Gen 3 CLI (preview registry)
+        run: |
+          curl -fsSL https://omega-preview-registry.amplify.aws.dev/setup -o /tmp/omega-setup.sh
+          bash /tmp/omega-setup.sh
+          npm install -g --allow-scripts=@omega/cli @omega/cli@latest
+          amplifygen3 --version
+
+      - run: npm ci
+
+      - name: Build
+        run: npx @aws-amplifygen3/adapter-nextjs
+
+      - name: Deploy the built artifact to production
+        run: amplifygen3 deploy --env production --prebuilt .amplify --logs
