@@ -23,7 +23,7 @@ const builtAt = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC"
 export function Footer() {
   return (
     <footer className="fixed bottom-0 inset-x-0 flex justify-center gap-10 py-6 text-2xl font-mono opacity-60">
-      <span>commit {sha}</span>
+      {sha !== "local" ? <span>commit {sha}</span> : null}
       {branch ? <span>branch {branch}</span> : null}
       <span>built {builtAt}</span>
     </footer>
