@@ -26,12 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show the OIDC subject this job presents
-        run: |
-          curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" \
-            | python3 -c 'import json,sys,base64; t=json.load(sys.stdin)["value"].split(".")[1]; c=json.loads(base64.urlsafe_b64decode(t+"=="*2)); print("sub:", c["sub"]); print("aud:", c["aud"])'
-
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
